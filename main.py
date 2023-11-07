@@ -8,15 +8,13 @@ class TestJoke:
     url = 'https://api.chucknorris.io/jokes/random'
     categories_url = 'https://api.chucknorris.io/jokes/categories'
 
-    ''' проверка  метода по возврату рандомных шуток '''
-
     def test_random_joke(self):
+        """проверка  метода по возврату рандомных шуток """
         result = requests.get(self.url)
         self.check_status_and_response(result)
 
-    ''' проверка  метода по возврату шуток по категориям '''
-
     def test_category_joke(self):
+        """ проверка  метода по возврату шуток по категориям """
         categories = self.get_categories()
         if categories:
             for category in categories:
@@ -25,18 +23,16 @@ class TestJoke:
                 self.check_status_and_response(result)
         print(f'катекория пустая')
 
-    '''получаем категории и убираем лишние символы '''
-
     def get_categories(self):
+        """получаем категории и убираем лишние символы """
         categories = self.categories_url
         result = requests.get(categories)
         arr = json.loads(result.text)
         return arr
 
-    '''проверка статуса и получение ответа для печати в консоле'''
-
     @staticmethod
     def check_status_and_response(result):
+        """проверка статуса и получение ответа для печати в консоле"""
         TestJoke.not_found(result)
         if result.status_code == 200:
             print('Запрос успешный')
@@ -53,10 +49,9 @@ class TestJoke:
               f"значение:{body.get('value')}\n"
               )
 
-    '''проверка на статус код 404'''
-
     @staticmethod
     def not_found(result):
+        """проверка на статус код 404"""
         non = requests.get(result.url[:-1])
         print(f'статус код:{result.status_code}')
         if non.status_code == 404:
