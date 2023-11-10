@@ -1,63 +1,68 @@
-import json
-import sys
+from typing import List
 
 import requests
+from requests import Response
 
 
 class TestJoke:
-    url = 'https://api.chucknorris.io/jokes/random'
-    categories_url = 'https://api.chucknorris.io/jokes/categories'
 
-    def test_random_joke(self):
-        """проверка  метода по возврату рандомных шуток """
-        result = requests.get(self.url)
-        self.check_status_and_response(result)
+    def __init__(self):
+        """Инициализация объекта."""
+        self.base_url = 'https://api.chucknorris.io/jokes'
 
-    def test_category_joke(self):
-        """ проверка  метода по возврату шуток по категориям """
-        categories = self.get_categories()
-        if categories:
-            for category in categories:
-                category_url = self.url + '?category=' + category
-                result = requests.get(category_url)
-                self.check_status_and_response(result)
-        print(f'катекория пустая')
+    def get_jokes_from_all_categories(self) -> List[str]:
+        """Получить по одной шутке из каждой категории.
 
-    def get_categories(self):
-        """получаем категории и убираем лишние символы """
-        categories = self.categories_url
-        result = requests.get(categories)
-        arr = json.loads(result.text)
-        return arr
+        :return: список с шутками
+        """
+        categories = self.get_all_categories()
+        jokes = []
+        for category in categories:
+            category_url = self.base_url + '/random/?category=' + category
+            response = requests.get(category_url)
+            self.check_status_code(response)
+            self.print_response_info(response)
+            joke = response.json().get("value")
+            jokes.append(joke)
+        return jokes
 
-    @staticmethod
-    def check_status_and_response(result):
-        """проверка статуса и получение ответа для печати в консоле"""
-        TestJoke.not_found(result)
-        if result.status_code == 200:
-            print('Запрос успешный')
-        else:
-            print('Запрос вернулся с ошибкой')
-        result.encoding = 'utf-8'
-        body = result.json()
-        print(f"Категория:{body.get('categories')} \n"
-              f"дата создания: {body.get('created_at')} \n"
-              f"icon_ur:{body.get('icon_url')}\n"
-              f"id:{body.get('id')}\n"
-              f"дата обновления :{body.get('updated_at')}\n"
-              f"url:{body.get('url')}\n"
-              f"значение:{body.get('value')}\n"
-              )
+    def get_all_categories(self) -> List[str]:
+        """Получение всех категорий.
+
+        :return: список категорий.
+        """
+        response = requests.get(self.base_url + "/categories")
+        categories = response.json()
+        return categories
 
     @staticmethod
-    def not_found(result):
-        """проверка на статус код 404"""
-        non = requests.get(result.url[:-1])
-        print(f'статус код:{result.status_code}')
-        if non.status_code == 404:
-            print(f'негативный тест с ошибкой в url {result.url[:-1]}')
+    def check_status_code(response: Response):
+        """Проверка кода ответа сервера.
+
+        :param response: ответ от сервера
+        """
+        assert response.status_code == 200, f"Неуспешный запрос. Статус код {response.status_code}"
+        print("Запрос успешный. Статус код 200.")
+
+    @staticmethod
+    def print_response_info(response: Response):
+        """Печать информации об ответе в консоль.
+
+        :param response: ответ от сервера
+        """
+        response.encoding = "utf-8"
+        body = response.json()
+        print(
+            f"Категория:{body.get('categories')} \n"
+            f"Дата создания: {body.get('created_at')} \n"
+            f"icon_ur:{body.get('icon_url')}\n"
+            f"id:{body.get('id')}\n"
+            f"Дата обновления :{body.get('updated_at')}\n"
+            f"url:{body.get('url')}\n"
+            f"Значение:{body.get('value')}\n"
+        )
 
 
 testApi = TestJoke()
-testApi.test_random_joke()
-testApi.test_category_joke()
+categories = testApi.get_all_categories()
+jokes = testApi.get_jokes_from_all_categories()
