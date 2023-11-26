@@ -10,6 +10,7 @@ class Test_new_location:
         self.base_url = 'https://rahulshettyacademy.com'
         self.post_resource = '/maps/api/place/add/json'
         self.get_resource = '/maps/api/place/get/json'
+        self.delete_resource = '/maps/api/place/delete/json'
         self.key = '?key=qaclick123'
 
     def test_create_locations(self) -> None:
@@ -34,7 +35,6 @@ class Test_new_location:
 
             }
             result = requests.post(post_url, json=obj_json)
-            print(result.text)
             body = result.json().get('place_id')
             place_id_file.writelines(body + '\n')
         place_id_file.close()
@@ -43,15 +43,32 @@ class Test_new_location:
         """Чтение файла и отправка GET  запроса, по place_id"""
         with open('place_id.txt', 'r') as f:
             reader = csv.reader(f, delimiter='\n')
-
             for row in reader:
                 place_id = row[0]
                 url = self.base_url + self.get_resource + self.key + '&place_id=' + str(place_id)
                 response = requests.get(url)
-                print(response.status_code)
                 self.check_status_code(response)
                 self.print_response_by_get_info(response)
             f.close()
+
+    def get_delete_location(self):
+        """Чтение файла делаем выборку по 2 и 4 элементы. делаем запрос на удаление """
+        file_content = open('place_id.txt').read().split("\n")
+        delete_url = self.base_url + self.delete_resource + self.key
+        #         url = self.base_url + self.get_resource + self.key + '&place_id=' + line
+        with open('place_id.txt', 'r') as file:
+            place_ids = file.read().split()
+
+        existing_place_ids = [place_id for place_id in place_ids if place_id != ' ']
+        non_existing_place_ids = place_ids[1::2]
+        for i in non_existing_place_ids:
+            obj_json = {
+                "place_id": i
+            }
+            response = requests.delete(delete_url, json=obj_json)
+            self.check_status_code(response)
+        print(existing_place_ids)
+        print(non_existing_place_ids)
 
     @staticmethod
     def check_status_code(response: Response) -> None:
