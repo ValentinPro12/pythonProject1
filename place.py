@@ -52,10 +52,9 @@ class Test_new_location:
             f.close()
 
     def get_delete_location(self):
+        place_id_file = open('place_id_on_delete.txt', 'w+')
         """Чтение файла делаем выборку по 2 и 4 элементы. делаем запрос на удаление """
-        file_content = open('place_id.txt').read().split("\n")
         delete_url = self.base_url + self.delete_resource + self.key
-        #         url = self.base_url + self.get_resource + self.key + '&place_id=' + line
         with open('place_id.txt', 'r') as file:
             place_ids = file.read().split()
 
@@ -66,9 +65,20 @@ class Test_new_location:
                 "place_id": i
             }
             response = requests.delete(delete_url, json=obj_json)
-            self.check_status_code(response)
-        print(existing_place_ids)
-        print(non_existing_place_ids)
+        for item in existing_place_ids:
+            url = self.base_url + self.get_resource + self.key + '&place_id=' + str(item)
+            response = requests.get(url)
+            status_code = response.status_code
+            if status_code == 404:
+                self.check_status_code(response)
+            else:
+                place_id_file.writelines(item + '\n')
+            # url = self.base_url + self.get_resource + self.key + '&place_id=' + str(i)
+        # new_list = [place_id for place_id in place_ids if place_id not in non_existing_place_ids]
+        # for item in new_list:
+        #     place_id_file.writelines(item + '\n')
+        # place_id_file.close()
+
 
     @staticmethod
     def check_status_code(response: Response) -> None:
