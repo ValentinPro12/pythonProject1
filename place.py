@@ -64,7 +64,9 @@ class Test_new_location:
             obj_json = {
                 "place_id": i
             }
-            response = requests.delete(delete_url, json=obj_json)
+            requests.delete(delete_url, json=obj_json)
+            """бежим циклом по всем place_id, 
+            отправляем запрос и проверяем  status_code и записываем  place_id с кодом 200 """
         for item in existing_place_ids:
             url = self.base_url + self.get_resource + self.key + '&place_id=' + str(item)
             response = requests.get(url)
@@ -72,12 +74,9 @@ class Test_new_location:
             if status_code == 404:
                 self.check_status_code(response)
             else:
+                self.check_status_code(response)
+                self.print_response_by_get_info(response)
                 place_id_file.writelines(item + '\n')
-            # url = self.base_url + self.get_resource + self.key + '&place_id=' + str(i)
-        # new_list = [place_id for place_id in place_ids if place_id not in non_existing_place_ids]
-        # for item in new_list:
-        #     place_id_file.writelines(item + '\n')
-        # place_id_file.close()
 
 
     @staticmethod
