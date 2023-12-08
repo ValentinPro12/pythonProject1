@@ -1,8 +1,8 @@
-import test_categories_jokes
+import categories_jokes
 import receiving_data_user
 import place
 
-testApi = test_categories_jokes.TestJoke()
+testApi = categories_jokes.Joke()
 categories = testApi.get_all_categories()
 jokes = testApi.get_jokes_from_all_categories()
 question = receiving_data_user.GetJokesByUser().question()

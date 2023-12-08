@@ -4,7 +4,7 @@ import requests
 from requests import Response
 
 
-class TestJoke:
+class Joke:
 
     def __init__(self):
         """Инициализация объекта."""
